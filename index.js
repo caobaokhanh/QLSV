@@ -1,30 +1,48 @@
 // Danh sách sinh viên
 let students = [];
 
+// Biến kiểm tra xem form đã được submit hay chưa
+let isSubmitted = false;
+
 function addStudent() {
   // B1: DOM
-  let id = document.getElementById("txtMaSV").value;
-  let name = document.getElementById("txtTenSV").value;
-  let email = document.getElementById("txtEmail").value;
-  let password = document.getElementById("txtPass").value;
-  let date = document.getElementById("txtNgaySinh").value;
-  let coures = document.getElementById("khSV").value;
-  let math = +document.getElementById("txtDiemToan").value;
-  let physics = +document.getElementById("txtDiemLy").value;
-  let chemistry = +document.getElementById("txtDiemHoa").value;
+  // let id = document.getElementById("txtMaSV").value;
+  // let name = document.getElementById("txtTenSV").value;
+  // let email = document.getElementById("txtEmail").value;
+  // let password = document.getElementById("txtPass").value;
+  // let date = document.getElementById("txtNgaySinh").value;
+  // let coures = document.getElementById("khSV").value;
+  // let math = +document.getElementById("txtDiemToan").value;
+  // let physics = +document.getElementById("txtDiemLy").value;
+  // let chemistry = +document.getElementById("txtDiemHoa").value;
 
-  //B2: Khởi tạo đối tượng Student
-  let student = new Student(
-    id,
-    name,
-    email,
-    password,
-    date,
-    coures,
-    math,
-    physics,
-    chemistry
-  );
+  // //B2: Khởi tạo đối tượng Student
+  // let student = new Student(
+  //   id,
+  //   name,
+  //   email,
+  //   password,
+  //   date,
+  //   coures,
+  //   math,
+  //   physics,
+  //   chemistry
+  // );
+
+  // let isValid = validate(student);
+  // if (!isValid) {
+  //   return;
+  // }
+
+  // =====================================================
+
+  // B1 + B2: Gọi tới hàm validate để kiểm tra form và tạo đối tượng student
+  isSubmitted = true;
+
+  let student = validate();
+  if (!student) {
+    return;
+  }
 
   // B3: Thêm đối tượng student vào danh sách
   students.push(student);
@@ -70,6 +88,8 @@ function display(students) {
 }
 
 function resetForm() {
+  isSubmitted = false;
+
   /* Cách 1:
   let id = document.getElementById("txtMaSV");
   let name = document.getElementById("txtTenSV");
@@ -101,6 +121,16 @@ function resetForm() {
   document.getElementById("txtDiemToan").value = "";
   document.getElementById("txtDiemLy").value = "";
   document.getElementById("txtDiemHoa").value = "";
+
+  document.getElementById("spanMaSV").innerHTML = "";
+  document.getElementById("spanTenSV").innerHTML = "";
+  document.getElementById("spanEmailSV").innerHTML = "";
+  document.getElementById("spanMatKhau").innerHTML = "";
+  document.getElementById("spanNgaySinh").innerHTML = "";
+  document.getElementById("spanKhoaHoc").innerHTML = "";
+  document.getElementById("spanToan").innerHTML = "";
+  document.getElementById("spanLy").innerHTML = "";
+  document.getElementById("spanHoa").innerHTML = "";
 
   document.getElementById("txtMaSV").disabled = false;
   document.getElementById("btnAdd").disabled = false;
@@ -166,33 +196,39 @@ function selectStudent(studentId) {
 }
 
 function updateStudent() {
-  // B1: DOM
-  let id = document.getElementById("txtMaSV").value;
-  let name = document.getElementById("txtTenSV").value;
-  let email = document.getElementById("txtEmail").value;
-  let password = document.getElementById("txtPass").value;
-  let date = document.getElementById("txtNgaySinh").value;
-  let coures = document.getElementById("khSV").value;
-  let math = +document.getElementById("txtDiemToan").value;
-  let physics = +document.getElementById("txtDiemLy").value;
-  let chemistry = +document.getElementById("txtDiemHoa").value;
+  isSubmitted = true;
+  let student = validate();
+  if (!student) {
+    return;
+  }
 
-  //B2: Khởi tạo đối tượng Student
-  let student = new Student(
-    id,
-    name,
-    email,
-    password,
-    date,
-    coures,
-    math,
-    physics,
-    chemistry
-  );
+  // // B1: DOM
+  // let id = document.getElementById("txtMaSV").value;
+  // let name = document.getElementById("txtTenSV").value;
+  // let email = document.getElementById("txtEmail").value;
+  // let password = document.getElementById("txtPass").value;
+  // let date = document.getElementById("txtNgaySinh").value;
+  // let coures = document.getElementById("khSV").value;
+  // let math = +document.getElementById("txtDiemToan").value;
+  // let physics = +document.getElementById("txtDiemLy").value;
+  // let chemistry = +document.getElementById("txtDiemHoa").value;
+
+  // //B2: Khởi tạo đối tượng Student
+  // let student = new Student(
+  //   id,
+  //   name,
+  //   email,
+  //   password,
+  //   date,
+  //   coures,
+  //   math,
+  //   physics,
+  //   chemistry
+  // );
 
   // B3: Tìm index của phần tử student cần cập
   let index = students.findIndex((value) => {
-    return value.id === id;
+    return value.id === student.id;
   });
 
   // Thay thế phần tử thứ index cho object student vừa tạo ở trên
@@ -204,3 +240,265 @@ function updateStudent() {
   // B5: Reset form
   resetForm(students);
 }
+
+// Hàm kiểm tra giá trị có rỗng hay không
+function isRequired(value) {
+  if (!value.trim()) {
+    // Đặt dấu ! để phủ định nếu nó là false thì phủ định nó là true để nó chạy vào trong cái if
+    // Chuỗi rỗng
+    return false;
+  }
+  return true;
+}
+
+// Hàm kiểm tra điểm có hợp lệ hay không
+function isScore(value) {
+  // Sử dụng hàm isNaN có sẳn trong JS để kiểm tra xem nó có phải là NaN hay không
+  if (isNaN(value)) {
+    return false;
+  }
+  if (value < 0 || value > 10) {
+    return false;
+  }
+
+  return true;
+}
+
+// Hàm kiểm tra mật khẩu: có ít nhất 8 kí tự, 1 chữ hoa, 1 chữ thường, 1 số, 1 kí tự đặc biệt
+function isPassword(value) {
+  let regex =
+    /^(?=.*[A-Z])(?=.*[!&%\/()=\?\^\*\+\]\[#><;:,\._-|@])(?=.*[0-9])(?=.*[a-z]).{8,40}$/;
+
+  return regex.test(value);
+}
+
+// Hàm kiểm tra email
+function isEmail(value) {
+  let regex = /^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$/;
+  return regex.test(value);
+}
+
+// Hàm kiểm tra tất cả input trên form có hợp lệ hay không
+function validate() {
+  let id = document.getElementById("txtMaSV").value;
+  let name = document.getElementById("txtTenSV").value;
+  let email = document.getElementById("txtEmail").value;
+  let password = document.getElementById("txtPass").value;
+  let date = document.getElementById("txtNgaySinh").value;
+  let coures = document.getElementById("khSV").value;
+  let math = document.getElementById("txtDiemToan").value;
+  let physics = document.getElementById("txtDiemLy").value;
+  let chemistry = document.getElementById("txtDiemHoa").value;
+
+  // Math, physics, chemistry không ép kiểu để hàm isRequired kiểm tra xem nó có rỗng hay k
+
+  // Kĩ thuật đặt cờ hiệu
+  let isValid = true; // Sử dụng isValid để mặc định thông tin của student là true
+
+  if (!isRequired(id)) {
+    // Không hợp lệ
+    isValid = false;
+    document.getElementById("spanMaSV").innerHTML =
+      "Mã sinh viên không được để trống";
+  }
+
+  if (!isRequired(name)) {
+    isValid = false;
+    document.getElementById("spanTenSV").innerHTML =
+      "Tên sinh viên không được để trống";
+  }
+
+  if (!isRequired(email)) {
+    isValid = false;
+    document.getElementById("spanEmailSV").innerHTML =
+      "Email sinh viên không được để trống";
+  } else if (!isEmail(email)) {
+    isValid = false;
+    document.getElementById("spanEmailSV").innerHTML =
+      "Email sinh viên không hợp lệ";
+  }
+
+  if (!isRequired(password)) {
+    isValid = false;
+    document.getElementById("spanMatKhau").innerHTML =
+      "Mật khẩu không được để trống";
+  } else if (!isPassword(password)) {
+    isValid = false;
+    document.getElementById("spanMatKhau").innerHTML = "Mật khẩu không hợp lệ";
+  }
+
+  if (!isRequired(date)) {
+    isValid = false;
+    document.getElementById("spanNgaySinh").innerHTML =
+      "Ngày sinh không được để trống";
+  }
+
+  if (!isRequired(coures)) {
+    isValid = false;
+    document.getElementById("spanKhoaHoc").innerHTML =
+      "Khóa học không được để trống";
+  }
+
+  if (!isRequired(math)) {
+    isValid = false;
+    document.getElementById("spanToan").innerHTML =
+      "Điểm Toán không được để trống";
+  } else if (!isScore(+math)) {
+    isValid = false;
+    document.getElementById("spanToan").innerHTML = "Điểm Toán không hợp lệ";
+  }
+
+  if (!isRequired(physics)) {
+    isValid = false;
+    document.getElementById("spanLy").innerHTML = "Điểm Lý không được để trống";
+  } else if (!isScore(+physics)) {
+    isValid = false;
+    document.getElementById("spanLy").innerHTML = "Điểm Lý không hợp lệ";
+  }
+
+  if (!isRequired(chemistry)) {
+    isValid = false;
+    document.getElementById("spanHoa").innerHTML =
+      "Điểm Hóa không được để trống";
+  } else if (!isScore(+chemistry)) {
+    isValid = false;
+    document.getElementById("spanHoa").innerHTML = "Điểm Hóa không hợp lệ";
+  }
+
+  if (isValid) {
+    // Form hợp lệ => tạo ra đối tượng student để trả về
+    let student = new Student(
+      id,
+      name,
+      email,
+      password,
+      date,
+      coures,
+      +math,
+      +physics,
+      +chemistry
+    );
+
+    return student;
+  }
+
+  // Form không hợp lệ => Không tạo đối tượng student
+  return undefined;
+}
+
+document.getElementById("txtMaSV").oninput = (event) => {
+  if (!isSubmitted) return;
+
+  // Tất cả sự kiện trong Javascript đều nhận đc đối tượng event
+  // event.target: phần tử html phát sinh sự kiện
+  let idSpan = document.getElementById("spanMaSV");
+  if (isRequired(event.target.value)) {
+    idSpan.innerHTML = "";
+  } else {
+    idSpan.innerHTML = "Mã sinh viên không được để trống";
+  }
+};
+
+document.getElementById("txtTenSV").oninput = (event) => {
+  if (!isSubmitted) return;
+
+  // Tất cả sự kiện trong Javascript đều nhận đc đối tượng event
+  // event.target: phần tử html phát sinh sự kiện
+  let nameSpan = document.getElementById("spanTenSV");
+  if (isRequired(event.target.value)) {
+    nameSpan.innerHTML = "";
+  } else {
+    nameSpan.innerHTML = "Tên sinh viên không được để trống";
+  }
+};
+
+document.getElementById("txtEmail").oninput = (event) => {
+  if (!isSubmitted) return;
+
+  // Tất cả sự kiện trong Javascript đều nhận đc đối tượng event
+  // event.target: phần tử html phát sinh sự kiện
+  let emailSpan = document.getElementById("spanEmailSV");
+  if (isRequired(event.target.value)) {
+    emailSpan.innerHTML = "";
+  } else {
+    emailSpan.innerHTML = "Email sinh viên không được để trống";
+  }
+};
+
+document.getElementById("txtPass").oninput = (event) => {
+  if (!isSubmitted) return;
+
+  // Tất cả sự kiện trong Javascript đều nhận đc đối tượng event
+  // event.target: phần tử html phát sinh sự kiện
+  let pwSpan = document.getElementById("spanMatKhau");
+  if (isRequired(event.target.value)) {
+    pwSpan.innerHTML = "";
+  } else {
+    pwSpan.innerHTML = "Mật khẩu không được để trống";
+  }
+};
+
+document.getElementById("txtNgaySinh").oninput = (event) => {
+  if (!isSubmitted) return;
+
+  // Tất cả sự kiện trong Javascript đều nhận đc đối tượng event
+  // event.target: phần tử html phát sinh sự kiện
+  let dateSpan = document.getElementById("spanNgaySinh");
+  if (isRequired(event.target.value)) {
+    dateSpan.innerHTML = "";
+  } else {
+    dateSpan.innerHTML = "Ngày sinh không được để trống";
+  }
+};
+
+document.getElementById("khSV").oninput = (event) => {
+  if (!isSubmitted) return;
+
+  // Tất cả sự kiện trong Javascript đều nhận đc đối tượng event
+  // event.target: phần tử html phát sinh sự kiện
+  let couresSpan = document.getElementById("spanKhoaHoc");
+  if (isRequired(event.target.value)) {
+    couresSpan.innerHTML = "";
+  } else {
+    couresSpan.innerHTML = "Khóa học không được để trống";
+  }
+};
+
+document.getElementById("txtDiemToan").oninput = (event) => {
+  if (!isSubmitted) return;
+
+  // Tất cả sự kiện trong Javascript đều nhận đc đối tượng event
+  // event.target: phần tử html phát sinh sự kiện
+  let mathSpan = document.getElementById("spanToan");
+  if (isRequired(event.target.value)) {
+    mathSpan.innerHTML = "";
+  } else {
+    mathSpan.innerHTML = "Điểm Toán không được để trống";
+  }
+};
+
+document.getElementById("txtDiemLy").oninput = (event) => {
+  if (!isSubmitted) return;
+
+  // Tất cả sự kiện trong Javascript đều nhận đc đối tượng event
+  // event.target: phần tử html phát sinh sự kiện
+  let physicsSpan = document.getElementById("spanLy");
+  if (isRequired(event.target.value)) {
+    physicsSpan.innerHTML = "";
+  } else {
+    physicsSpan.innerHTML = "Điểm Lý không được để trống";
+  }
+};
+
+document.getElementById("txtDiemHoa").oninput = (event) => {
+  if (!isSubmitted) return;
+
+  // Tất cả sự kiện trong Javascript đều nhận đc đối tượng event
+  // event.target: phần tử html phát sinh sự kiện
+  let chemistrySpan = document.getElementById("spanHoa");
+  if (isRequired(event.target.value)) {
+    chemistrySpan.innerHTML = "";
+  } else {
+    chemistrySpan.innerHTML = "Điểm Hóa không được để trống";
+  }
+};
