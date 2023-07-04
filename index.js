@@ -4,6 +4,30 @@ let students = [];
 // Biến kiểm tra xem form đã được submit hay chưa
 let isSubmitted = false;
 
+// Gọi hàm init để khởi tạo danh sách sinh viên nếu có
+init();
+
+function init() {
+  // Student = null // []
+  // Dùng Dấu hoặc " || " trong phép gán nó sẽ lấy giá trị truthy value đầu tiên
+  students = JSON.parse(localStorage.getItem("students")) || [];
+
+  students = students.map((value) => {
+    return new Student(
+      value.id,
+      value.name,
+      value.email,
+      value.password,
+      value.date,
+      value.coures,
+      value.math,
+      value.physics,
+      value.chemistry
+    );
+  });
+  display(students);
+}
+
 function addStudent() {
   // B1: DOM
   // let id = document.getElementById("txtMaSV").value;
@@ -46,6 +70,7 @@ function addStudent() {
 
   // B3: Thêm đối tượng student vào danh sách
   students.push(student);
+  localStorage.setItem("students", JSON.stringify(students));
 
   // B4: Hiển thị danh sách student ra giao diện
   display(students);
@@ -171,6 +196,9 @@ function removeStudent(studentId) {
   students = students.filter((value) => {
     return value.id !== studentId;
   });
+
+  localStorage.setItem("students", JSON.stringify(students));
+
   display(students);
 }
 
@@ -233,6 +261,8 @@ function updateStudent() {
 
   // Thay thế phần tử thứ index cho object student vừa tạo ở trên
   students[index] = student;
+
+  localStorage.setItem("students", JSON.stringify(students));
 
   // B4: Hiển thị danh sách
   display(students);
